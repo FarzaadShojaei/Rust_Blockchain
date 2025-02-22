@@ -95,7 +95,7 @@ fn transfer_balance(){
 
     balances.set_balance(&"alice".to_string(), &100);
 
-    balances.transfer(alice.clone(),bob.clone(), 90);
+    let _ = balances.transfer(alice.clone(),bob.clone(), 90);
 
     assert_eq!(balances.balance(&alice), 10);
     assert_eq!(balances.balance(&bob), 90);
@@ -107,5 +107,29 @@ fn transfer_balance(){
      */
 
 }
+    #[test]
+    fn transfer_balance_insufficient(){
+        let alice = "alice".to_string();
+        let bob = "bob".to_string();
+        let mut balances= super::Pallet::new();
+        balances.set_balance(&"alice".to_string(), &100);
+        let result = balances.transfer(alice.clone(),bob.clone(), 90);
+        assert_eq!(result, Err("Insufficient balance"));
+        assert_eq!(result.is_err(), true);
+        assert_eq!(balances.balance(&alice), 100);
+        assert_eq!(balances.balance(&bob), 0);
+    }
+    #[test]
+    fn transfer_balance_overflow(){
+        let alice = "alice".to_string();
+        let bob = "bob".to_string();
+        let mut balances= super::Pallet::new();
+        balances.set_balance(&"alice".to_string(), &100);
+        balances.set_balance(&"alice".to_string(), &u128::MAX);
+        let result = balances.transfer(alice.clone(),bob.clone(), 1);
+        assert_eq!(result, Err("Overflow When adding to balance"));
+        assert_eq!(balances.balance(&alice), 100);
+        assert_eq!(balances.balance(&bob), u128::MAX);
+    }
 }
 
