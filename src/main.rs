@@ -2,9 +2,22 @@ use std::collections::BTreeMap;
 use crate::balances::Pallet;
 
 mod balances;
+mod system;
+
 fn main() {
     println!("Hello Rust");
-   // let mut pallet:Pallet = balances::Pallet::new();
+    let mut balance= balances::Pallet::new();
+    let mut system = system::Pallet::new();
+
+
+
+
+
+
+
+}
+
+/*
     let mut map= BTreeMap::new();
     //Pattern Matching
     map.insert("alice",100);
@@ -25,13 +38,6 @@ fn main() {
         }
     }
 
-
-
-
-
-
-}
-
-
+ */
 
 
