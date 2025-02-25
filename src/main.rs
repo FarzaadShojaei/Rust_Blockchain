@@ -3,11 +3,25 @@ use crate::balances::Pallet;
 
 mod balances;
 mod system;
+pub struct RunTime{
+    system: system::Pallet,
+    balances: balances::Pallet
 
+}
+
+impl RunTime{
+
+    fn new()-> Self{
+        Self {
+            system: system::Pallet::new(),
+            balances: balances::Pallet::new()
+        }
+    }
+}
 fn main() {
+    let runTime = RunTime::new();
     println!("Hello Rust");
-    let mut balance= balances::Pallet::new();
-    let mut system = system::Pallet::new();
+
 
 
 

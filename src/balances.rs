@@ -69,7 +69,7 @@ fn init_balances() {
 
     assert_eq!(balances.balance(&"alice".to_string()),0);
     balances.set_balance(&"bob".to_string(), &100);
-    assert_eq!(balances.balance(&"alice".to_string()),100);
+    //assert_eq!(balances.balance(&"alice".to_string()),100);
     assert_eq!(balances.balance(&"bob".to_string()),100);
 
 
