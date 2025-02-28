@@ -1,5 +1,7 @@
 use std::collections::BTreeMap;
 
+
+#[derive(Debug)]
 pub struct Pallet{
     
     block_number:u32,
@@ -43,15 +45,16 @@ impl Pallet {
     }
 
     pub fn get_nance(&self, who: &String) -> &u32 {
-        let default = 0;
-        self.nance.get(who).unwrap_or(*default)
+        let default = &0;
+        self.nance.get(who).unwrap_or(default)
     }
 
 }
 
-#[cfg!(test)]
+#[cfg(test)]
 mod test{
     use std::alloc::System;
+    use crate::balances::Pallet;
 
     #[test]
     fn init_system(){

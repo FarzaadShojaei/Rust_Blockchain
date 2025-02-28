@@ -1,11 +1,13 @@
 use std::collections::BTreeMap;
+use std::collections::hash_set::SymmetricDifference;
 use crate::balances::Pallet;
 
-mod balances;
-mod system;
+pub mod balances;
+pub mod system;
+#[derive(Debug)]
 pub struct RunTime{
     system: system::Pallet,
-    balances: balances::Pallet
+    balances: Pallet
 
 }
 
@@ -14,13 +16,30 @@ impl RunTime{
     fn new()-> Self{
         Self {
             system: system::Pallet::new(),
-            balances: balances::Pallet::new()
+            balances:Pallet::new()
         }
     }
 }
 fn main() {
-    let runTime = RunTime::new();
+    let mut run_time = RunTime::new();
     println!("Hello Rust");
+    let alice ="alice".to_string();
+    let bob = "bob".to_string();
+    let charlie = "charlie".to_string();
+
+    run_time.balances.set_balance(&alice, &100);
+
+    run_time.system.inc_block_number();
+
+
+    assert_eq!(run_time.system.block_number(), 1);
+
+    run_time.system.inc_nance(&alice);
+
+    let _ = run_time.balances.transfer(alice.clone(), charlie.clone(), 20).map_err(|e|println!("Error: {:?}", e));
+
+    println!("{:#?}", run_time);
+
 
 
 

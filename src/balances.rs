@@ -1,6 +1,8 @@
 use std::collections::BTreeMap;
 use crate::balances;
 
+
+#[derive(Debug)]
 pub struct Pallet {
  pub balances: BTreeMap<String, u128>,
 
@@ -17,7 +19,7 @@ impl Pallet {
     pub fn set_balance(&mut self, who: &String, amount: &u128) {
         self.balances.insert(who.clone(), *amount);
         /* Insert `amount` into the BTreeMap under `who` */
-        unimplemented!();
+
     }
     /// GET the balance of account `who` to some `amount`
     /// If the account has no stored balance, we return zero
