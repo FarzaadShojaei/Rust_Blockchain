@@ -1,6 +1,8 @@
 use std::collections::BTreeMap;
 
-
+type AccountId=String;
+type BlockNumber=u32;
+type nance=u32;
 #[derive(Debug)]
 pub struct Pallet{
     
@@ -23,7 +25,7 @@ impl Pallet {
     }
 
     //Return the current block number
-    pub fn block_number(&self)->u32{
+    pub fn block_number(&self)->BlockNumber{
 
         self.block_number
     }
@@ -34,7 +36,7 @@ impl Pallet {
 
     }
     //Increments the nonce of an account, for keep tracking of the amount of transactions
-    pub fn inc_nance(&mut self,who: &String){
+    pub fn inc_nance(&mut self,who: &AccountId){
         let nance: &u32 = self.nance.get(who).unwrap_or(&0);
         let new_nance: u32 = nance +1 ;
 
@@ -44,7 +46,7 @@ impl Pallet {
 
     }
 
-    pub fn get_nance(&self, who: &String) -> &u32 {
+    pub fn get_nance(&self, who: &AccountId) -> &u32 {
         let default = &0;
         self.nance.get(who).unwrap_or(default)
     }
