@@ -1,16 +1,20 @@
 use std::collections::BTreeMap;
+use std::fmt::Debug;
 use crate::balances;
-type AccountId=String;
-type Balance=u128;
+use num::traits::{CheckedAdd,CheckedSub,Zero};
+
 
 #[derive(Debug)]
-pub struct Pallet {
- pub balances: BTreeMap<AccountId, u128>,
+pub struct Pallet<AccountId,Balance> {
+ pub balances: BTreeMap<AccountId, Balance>,
 
 }
 //Adding Different Implementations of Functions : using impl
 //creating a pallet from outside
-impl Pallet {
+impl<AccountId,Balance> Pallet<AccountId,Balance>
+where
+AccountId: Ord + Clone,
+Balance: Zero + CheckedSub + CheckedAdd + Copy,{
     pub fn new() -> Self {
         Self{
             balances: BTreeMap::new(),
@@ -18,14 +22,14 @@ impl Pallet {
     }
     /// Set the balance of account `who` to some `amount`
     pub fn set_balance(&mut self, who: &AccountId, amount: Balance) {
-        self.balances.insert(who.clone(), *amount);
+        self.balances.insert(who.clone(), amount);
         /* Insert `amount` into the BTreeMap under `who` */
 
     }
     /// GET the balance of account `who` to some `amount`
     /// If the account has no stored balance, we return zero
     pub fn balance(&self, who: &AccountId) -> Balance {
-        *self.balances.get(who).unwrap_or(&0)
+        *self.balances.get(who).unwrap_or(&Balance::zero())
     }
 
     /// Transfer `amount` from one account to another
@@ -37,13 +41,13 @@ impl Pallet {
         to: AccountId,
         amount: Balance,
     ) -> Result<(), &'static str> {
-    let caller_balance:u128 = self.balance(&caller);
-    let to_balance:u128 = self.balance(&to);
+    let caller_balance:Balance = self.balance(&caller);
+    let to_balance:Balance = self.balance(&to);
 
         let new_caller_balance = caller_balance
-            .checked_sub(to_balance).ok_or("Insufficient balance")?;
+            .checked_sub(&amount).ok_or("Insufficient balance")?;
 
-        let new_to_balance = to_balance.checked_add(amount).ok_or("Overflow When adding to balance")?;
+        let new_to_balance = to_balance.checked_add(&amount).ok_or("Overflow When adding to balance")?;
 
         self.set_balance(&caller, new_caller_balance);
         self.set_balance(&to, new_to_balance);
