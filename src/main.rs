@@ -4,10 +4,16 @@ use crate::balances::Pallet;
 
 pub mod balances;
 pub mod system;
+
+ mod types{
+   pub type AccountId=String;
+  pub  type Balance=u128;
+}
+
 #[derive(Debug)]
 pub struct RunTime{
     system: system::Pallet,
-    balances: Pallet
+    balances: Pallet<types::AccountId, types::Balance>
 
 }
 
@@ -27,7 +33,7 @@ fn main() {
     let bob = "bob".to_string();
     let charlie = "charlie".to_string();
 
-    run_time.balances.set_balance(&alice, &100);
+    run_time.balances.set_balance(&alice, 100);
 
     run_time.system.inc_block_number();
 
