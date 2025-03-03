@@ -1,38 +1,46 @@
 use std::collections::BTreeMap;
+use std::ops::AddAssign;
+use num::traits::{CheckedAdd, CheckedSub, One, Zero};
 
 type AccountId=String;
 type BlockNumber=u32;
-type nance=u32;
+type Nance =u32;
 #[derive(Debug)]
-pub struct Pallet{
+pub struct Pallet<AccountId, BlockNumber, Nance>{
     
-    block_number:u32,
-    nance:BTreeMap<String,u32>
+    block_number:BlockNumber,
+    nance:BTreeMap<AccountId,Nance>
 
 
     
     
 }
 
-impl Pallet {
+impl <AccountId, BlockNumber, Nance>Pallet<AccountId, BlockNumber, Nance>
+where
+    AccountId: Ord+ Clone,
+    BlockNumber: Zero + One + CheckedSub + CheckedAdd + Copy + AddAssign,
+    Nance: Ord+Clone+Copy
+
+{
 
 
     pub fn new() -> Self {
         Self{
-            block_number:0,
+            block_number:BlockNumber::zero(),
             nance:BTreeMap::new()
         }
     }
 
     //Return the current block number
-    pub fn block_number(&self)->BlockNumber{
+    pub fn block_number(&self) -> BlockNumber {
 
-        self.block_number
+        self.block_number;
     }
 
     //Incrementing the block number, increases the block number by one
     pub fn inc_block_number(&mut self){
-       self.block_number= self.block_number.checked_add(1).unwrap();
+       self.block_number += BlockNumber::one();
 
     }
     //Increments the nonce of an account, for keep tracking of the amount of transactions
