@@ -2,9 +2,7 @@ use std::collections::BTreeMap;
 use std::ops::AddAssign;
 use num::traits::{CheckedAdd, CheckedSub, One, Zero};
 
-type AccountId=String;
-type BlockNumber=u32;
-type Nance =u32;
+
 #[derive(Debug)]
 pub struct Pallet<AccountId, BlockNumber, Nance>{
     
@@ -20,7 +18,7 @@ impl <AccountId, BlockNumber, Nance>Pallet<AccountId, BlockNumber, Nance>
 where
     AccountId: Ord+ Clone,
     BlockNumber: Zero + One + CheckedSub + CheckedAdd + Copy + AddAssign,
-    Nance: Ord+Clone+Copy
+    Nance: Ord+Zero+One+Clone+Copy
 
 {
 
@@ -45,18 +43,18 @@ where
     }
     //Increments the nonce of an account, for keep tracking of the amount of transactions
     pub fn inc_nance(&mut self,who: &AccountId){
-        let nance: &u32 = self.nance.get(who).unwrap_or(&0);
-        let new_nance: u32 = nance +1 ;
+        let nance = *self.nance.get(who).unwrap_or(&Nance::zero());
 
-        self.nance.insert(who.clone(), nance+1);
+
+        self.nance.insert(who.clone(), nance+Nance::one());
 
 
 
     }
 
-    pub fn get_nance(&self, who: &AccountId) -> &u32 {
-        let default = &0;
-        self.nance.get(who).unwrap_or(default)
+    pub fn get_nance(&self, who: &AccountId) -> Nance {
+        //let default = &0;
+        *self.nance.get(who).unwrap_or(&Nance::zero());
     }
 
 }
@@ -68,12 +66,12 @@ mod test{
 
     #[test]
     fn init_system(){
-        let system = super::Pallet::new();
+        let system:super::Pallet<String,u32,u32> = super::Pallet::new();
         assert_eq!(system.block_number, 0);
     }
     #[test]
     fn inc_block_number(){
-        let mut system = super::Pallet::new();
+        let mut system:super::Pallet<String,u32,u32> = super::Pallet::new();
         system.inc_block_number();
         assert_eq!(system.block_number, 1);
     }
@@ -83,9 +81,9 @@ mod test{
     #[test]
     fn inc_nance(){
         let alice:String = String::from("alice");
-        let mut system = super::Pallet::new();
+        let mut system:super::Pallet<String,u32,u32> = super::Pallet::new();
         system.inc_nance(&alice.clone());
-        assert_eq!(system.get_nance(&alice).unwrap(), 1);
+        assert_eq!(system.get_nance(&alice), 1);
     }
 
 
