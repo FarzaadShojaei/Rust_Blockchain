@@ -2,61 +2,66 @@ use std::collections::BTreeMap;
 use std::ops::AddAssign;
 use num::traits::{CheckedAdd, CheckedSub, One, Zero};
 
+pub trait Config{
+    type AccountId: Ord + Clone;
+    type BlockNumber: Zero + One + AddAssign + Copy;
+    type Nance: Zero + One + Copy;
+
+}
+
 type AccountId=String;
 type BlockNumber=u32;
 type Nance =u32;
 #[derive(Debug)]
-pub struct Pallet<AccountId, BlockNumber, Nance>{
+pub struct Pallet<T:Config>{
     
-    block_number:BlockNumber,
-    nance:BTreeMap<AccountId,Nance>
+    block_number:T::BlockNumber,
+    nance:BTreeMap<T::AccountId,T::Nance>,
 
 
     
     
 }
 
-impl <AccountId, BlockNumber, Nance>Pallet<AccountId, BlockNumber, Nance>
-where
-    AccountId: Ord+ Clone,
-    BlockNumber: Zero + One + CheckedSub + CheckedAdd + Copy + AddAssign,
-    Nance: Ord+Clone+Copy
+impl <T:Config>Pallet<T>
+
+
 
 {
 
 
     pub fn new() -> Self {
         Self{
-            block_number:BlockNumber::zero(),
+            block_number:T::BlockNumber::zero(),
             nance:BTreeMap::new()
         }
     }
 
     //Return the current block number
-    pub fn block_number(&self) -> BlockNumber {
+    pub fn block_number(&self) -> T::BlockNumber {
 
         self.block_number;
     }
 
     //Incrementing the block number, increases the block number by one
     pub fn inc_block_number(&mut self){
-       self.block_number += BlockNumber::one();
+       self.block_number += T::BlockNumber::one();
 
     }
     //Increments the nonce of an account, for keep tracking of the amount of transactions
-    pub fn inc_nance(&mut self,who: &AccountId){
-        let nance: &u32 = self.nance.get(who).unwrap_or(&0);
+    pub fn inc_nance(&mut self,who: &T::AccountId){
+        let nance:<T as Config>::Nance = *self.nance.get(who).unwrap_or(&0);
         let new_nance: u32 = nance +1 ;
 
-        self.nance.insert(who.clone(), nance+1);
+        self.nance.insert(who.clone(), nance+T::Nance::one());
 
 
 
     }
 
-    pub fn get_nance(&self, who: &AccountId) -> &u32 {
+    pub fn get_nance(&self, who: &T::AccountId) -> T::Nance {
         let default = &0;
-        self.nance.get(who).unwrap_or(default)
+        *self.nance.get(who).unwrap_or(&T::Nance::zero())
     }
 
 }
