@@ -8,11 +8,19 @@ pub mod system;
  mod types{
    pub type AccountId=String;
   pub  type Balance=u128;
-}
 
+     pub type BlockNumber=u32;
+     pub type Nance=u32;
+}
+impl system::Config for RunTime{
+type AccountId = types::AccountId;
+type BlockNumber = types::BlockNumber;
+type Nance = types::Nance;
+
+}
 #[derive(Debug)]
 pub struct RunTime{
-    system: system::Pallet,
+    system: system::Pallet<RunTime>,
     balances: Pallet<types::AccountId, types::Balance>
 
 }

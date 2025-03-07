@@ -40,7 +40,7 @@ impl <T:Config>Pallet<T>
     //Return the current block number
     pub fn block_number(&self) -> T::BlockNumber {
 
-        self.block_number;
+        self.block_number
     }
 
     //Incrementing the block number, increases the block number by one
@@ -50,8 +50,8 @@ impl <T:Config>Pallet<T>
     }
     //Increments the nonce of an account, for keep tracking of the amount of transactions
     pub fn inc_nance(&mut self,who: &T::AccountId){
-        let nance:<T as Config>::Nance = *self.nance.get(who).unwrap_or(&0);
-        let new_nance: u32 = nance +1 ;
+        let nance:<T as Config>::Nance = *self.nance.get(who).unwrap_or(&T::Nance::zero());
+       // let new_nance: u32 = nance +1 ;
 
         self.nance.insert(who.clone(), nance+T::Nance::one());
 
@@ -68,17 +68,23 @@ impl <T:Config>Pallet<T>
 
 #[cfg(test)]
 mod test{
+    struct TestConfig;
     use std::alloc::System;
     use crate::balances::Pallet;
+    impl super::Config for TestConfig{
+        type AccountId = String;
+        type BlockNumber = u32;
+        type Nance = u32;
+    }
 
     #[test]
     fn init_system(){
-        let system = super::Pallet::new();
+        let system:super::Pallet<TestConfig> = super::Pallet::new();
         assert_eq!(system.block_number, 0);
     }
     #[test]
     fn inc_block_number(){
-        let mut system = super::Pallet::new();
+        let mut system:super::Pallet<TestConfig> = super::Pallet::new();
         system.inc_block_number();
         assert_eq!(system.block_number, 1);
     }
@@ -88,9 +94,9 @@ mod test{
     #[test]
     fn inc_nance(){
         let alice:String = String::from("alice");
-        let mut system = super::Pallet::new();
+        let mut system:super::Pallet<TestConfig> = super::Pallet::new();
         system.inc_nance(&alice.clone());
-        assert_eq!(system.get_nance(&alice).unwrap(), 1);
+        assert_eq!(system.get_nance(&alice), 1);
     }
 
 
