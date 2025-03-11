@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 use std::collections::hash_set::SymmetricDifference;
 use crate::balances::Pallet;
+use crate::types::AccountId;
 
 pub mod balances;
 pub mod system;
@@ -13,10 +14,16 @@ pub mod system;
 
 }
 
+impl system::Config for RunTime{
+  type AccountId = types::AccountId;
+   type BlockNumber = types::BlockNumber;
+   type Nance = types::Nance;
+}
+
 #[derive(Debug)]
 pub struct RunTime{
-    system: system::Pallet<types::AccountId, types::BlockNumber, types::Nance>,
-    balances: Pallet<types::AccountId, types::Balance>
+    system: system::Pallet<RunTime>,
+    balances: Pallet<RunTime>
 
 }
 
