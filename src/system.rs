@@ -32,7 +32,7 @@ impl<T:Config>Pallet<T>
     //Return the current block number
     pub fn block_number(&self) -> T::BlockNumber {
 
-        self.block_number;
+        self.block_number
     }
 
     //Incrementing the block number, increases the block number by one
@@ -53,7 +53,7 @@ impl<T:Config>Pallet<T>
 
     pub fn get_nance(&self, who: &T::AccountId) -> T::Nance {
         //let default = &0;
-        *self.nance.get(who).unwrap_or(&T::Nance::zero());
+        *self.nance.get(who).unwrap_or(&T::Nance::zero())
     }
 
 }

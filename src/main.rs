@@ -14,30 +14,39 @@ pub mod system;
 
 }
 
-impl system::Config for RunTime{
+
+
+impl system::Config for Runtime{
   type AccountId = types::AccountId;
    type BlockNumber = types::BlockNumber;
    type Nance = types::Nance;
 }
 
-#[derive(Debug)]
-pub struct RunTime{
-    system: system::Pallet<RunTime>,
-    balances: Pallet<RunTime>
+impl balances::Config for Runtime{
+
+    type Balance = types::Balance;
+
 
 }
 
-impl RunTime{
+#[derive(Debug)]
+pub struct Runtime{
+    system: system::Pallet<Runtime>,
+    balances: Pallet<Runtime>
+
+}
+
+impl Runtime{
 
     fn new()-> Self{
         Self {
             system: system::Pallet::new(),
-            balances:Pallet::new()
+            balances: balances::Pallet::new()
         }
     }
 }
 fn main() {
-    let mut run_time = RunTime::new();
+    let mut run_time = Runtime::new();
     println!("Hello Rust");
     let alice ="alice".to_string();
     let bob = "bob".to_string();

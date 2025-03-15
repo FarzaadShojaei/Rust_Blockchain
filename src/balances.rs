@@ -6,8 +6,8 @@ use crate::balances;
 use num::traits::{CheckedAdd,CheckedSub,Zero};
 use crate::types::Balance;
 
-pub trait Config{
-    type AccountId: Ord + Clone;
+pub trait Config: crate::system::Config {
+
     type Balance: Zero + CheckedSub + CheckedAdd + Copy;
 
 }
@@ -71,8 +71,21 @@ impl<T:Config> Pallet<T>
 }
 #[cfg(test)]
 mod tests {
-    use crate::balances;
+    use crate::{balances, system};
+    use crate::types::Balance;
 
+    struct TestConfig;
+    impl system::Config for TestConfig {
+        type AccountId = String;
+        type BlockNumber =u32;
+        type Nance = u32;
+    }
+
+
+    impl super::Config for TestConfig{
+
+        type Balance =u128;
+    }
 
 
 
@@ -80,7 +93,7 @@ mod tests {
 
     #[test]
 fn init_balances() {
-    let mut balances = balances::Pallet::new();
+    let mut balances:super::Pallet<TestConfig> = balances::Pallet::new();
 
     assert_eq!(balances.balance(&"alice".to_string()),0);
     balances.set_balance(&"bob".to_string(), *&100);
@@ -106,7 +119,7 @@ fn transfer_balance(){
     let alice = "alice".to_string();
     let bob = "bob".to_string();
 
-    let mut balances= super::Pallet::new();
+    let mut balances:super::Pallet<TestConfig>= super::Pallet::new();
 
     balances.set_balance(&"alice".to_string(), *&100);
 
@@ -126,7 +139,7 @@ fn transfer_balance(){
     fn transfer_balance_insufficient(){
         let alice = "alice".to_string();
         let bob = "bob".to_string();
-        let mut balances= super::Pallet::new();
+        let mut balances:super::Pallet<TestConfig>= super::Pallet::new();
         balances.set_balance(&"alice".to_string(), *&100);
         let result = balances.transfer(alice.clone(),bob.clone(), 90);
         assert_eq!(result, Err("Insufficient balance"));
@@ -138,7 +151,7 @@ fn transfer_balance(){
     fn transfer_balance_overflow(){
         let alice = "alice".to_string();
         let bob = "bob".to_string();
-        let mut balances= super::Pallet::new();
+        let mut balances:super::Pallet<TestConfig>= super::Pallet::new();
         balances.set_balance(&"alice".to_string(), *&100);
         balances.set_balance(&"alice".to_string(), u128::MAX);
         let result = balances.transfer(alice.clone(),bob.clone(), 1);
