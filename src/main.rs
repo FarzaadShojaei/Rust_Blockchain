@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 use std::collections::hash_set::SymmetricDifference;
 use crate::balances::Pallet;
+
 use crate::types::AccountId;
 
 pub mod balances;
@@ -8,10 +9,23 @@ pub mod system;
 mod support;
 
 mod types{
-   pub type AccountId=String;
+    use crate::support;
+
+    pub type AccountId=String;
   pub  type Balance=u128;
  pub    type BlockNumber=u32;
    pub  type Nance =u32;
+    pub type Extrinsic = support::Extrinsic<AccountId,crate::RuntimeCall>;
+    pub type Header= support::Header<BlockNumber>;
+    pub type Block= support::Block<Header,Extrinsic>;
+
+    /* TODO: Define a concrete `Extrinsitc` type using `AccountId` and `Runtime Call`.  */
+    /* TODO: Define a concrete `Header` type using `BlockNumber` */
+    /* TODO: Define a concrete `Block` type using `Header` and `Extrinsic` */
+
+}
+
+enum RuntimeCall{
 
 }
 
