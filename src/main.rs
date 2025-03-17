@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::collections::hash_set::SymmetricDifference;
 use crate::balances::Pallet;
-
+use crate::support::{Dispatch, DispatchResult};
 use crate::types::AccountId;
 
 pub mod balances;
@@ -58,6 +58,32 @@ impl Runtime{
             system: system::Pallet::new(),
             balances: balances::Pallet::new()
         }
+    }
+fn execute_block(&mut self,block:types::Block) -> support::DispatchResult{
+    self.system.inc_block_number();
+
+    if(self.system.block_number() !=block.header.block_number){
+        return Err("Block number mismatch");
+    }
+
+    for (i,support::Extrinsic{caller:String, call}) in block.extrinsics.into_iter().enumerate(){
+    self.system.inc_nance(&caller);
+        self.dispatch(caller,call)?
+
+    }
+
+    Ok(())
+}
+
+
+}
+impl crate::support::Dispatch for Runtime{
+    type Caller = <Runtime as system::Config>::AccountId;
+    type Call = RuntimeCall;
+
+
+    fn dispatch(&mut self, caller: Self::Caller, runtime_call: Self::Call) -> support::DispatchResult {
+        unimplemented!()
     }
 }
 fn main() {

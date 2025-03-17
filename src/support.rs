@@ -3,7 +3,7 @@
 pub struct Block<Header, Extrinsic>{
     pub header: Header,
 
-    pub extrinsic: Vec<Extrinsic>,
+    pub extrinsics: Vec<Extrinsic>,
 
 }
 
@@ -15,7 +15,7 @@ pub struct Header<BlockNumber>{
 }
 
 pub struct Extrinsic<Caller,Call>{
-    pub caller: Call,
+    pub caller: Caller,
     pub call: Call,
 
 
@@ -26,9 +26,9 @@ pub type DispatchResult = Result<(),&'static str>;
 
 pub trait Dispatch{
 
-    type Call;
-
     type Caller;
+
+    type Call;
 
     fn dispatch(&mut self,caller: Self::Caller,call: Self::Call)->DispatchResult;
 }
