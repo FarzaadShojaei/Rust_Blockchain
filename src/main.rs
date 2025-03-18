@@ -25,7 +25,7 @@ mod types{
 
 }
 
-enum RuntimeCall{
+pub enum RuntimeCall{
 
 }
 
@@ -66,9 +66,14 @@ fn execute_block(&mut self,block:types::Block) -> support::DispatchResult{
         return Err("Block number mismatch");
     }
 
-    for (i,support::Extrinsic{caller:String, call}) in block.extrinsics.into_iter().enumerate(){
+    for (i,support::Extrinsic{  caller, call}) in block.extrinsics.into_iter().enumerate(){
     self.system.inc_nance(&caller);
-        self.dispatch(caller,call)?
+     let _ =   self.dispatch(caller,call).map_err(|e|
+         eprintln!("Extrinsic Error
+ 	Block Number: {}
+	Extrinsic Number: {}
+	Error: {}"
+                   , block.header.block_number, i, e));
 
     }
 
