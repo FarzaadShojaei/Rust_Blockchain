@@ -6,6 +6,7 @@ pub trait Config{
     type AccountId: Ord + Clone;
     type BlockNumber: Zero + One + AddAssign + Copy;
     type Nance: Zero + One + Copy;
+    //Hello System
 }
 
 #[derive(Debug)]

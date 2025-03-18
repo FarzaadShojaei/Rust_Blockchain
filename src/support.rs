@@ -30,5 +30,5 @@ pub trait Dispatch{
 
     type Call;
 
-    fn dispatch(&mut self,caller: Self::Caller,call: Self::Call)->DispatchResult;
+    fn dispatch(&mut self,caller: Self::Caller, call: Self::Call)->DispatchResult;
 }
