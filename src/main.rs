@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::collections::hash_set::SymmetricDifference;
 use crate::balances::Pallet;
 use crate::support::{Dispatch, DispatchResult};
-use crate::types::AccountId;
+use crate::types::{AccountId, Balance};
 
 pub mod balances;
 pub mod system;
@@ -26,7 +26,7 @@ mod types{
 }
 
 pub enum RuntimeCall{
-
+BalanceTransfer{to:types::AccountId, amount: types::Balance},
 }
 
 
@@ -88,7 +88,13 @@ impl crate::support::Dispatch for Runtime{
 
 
     fn dispatch(&mut self, caller: Self::Caller, runtime_call: Self::Call) -> support::DispatchResult {
-        unimplemented!()
+        match runtime_call{
+            RuntimeCall::BalanceTransfer {to, amount}=>{
+                self.balances.transfer(caller,to,amount)?;
+            }
+
+        }
+        Ok(())
     }
 }
 fn main() {
@@ -98,16 +104,48 @@ fn main() {
     let bob = "bob".to_string();
     let charlie = "charlie".to_string();
 
-    run_time.balances.set_balance(&alice, 100);
+    run_time.balances.set_balance(&alice,100);
 
-    run_time.system.inc_block_number();
+    let block_1 = types::Block{
+        header: support::Header{block_number: 1},
+        extrinsics: vec![
+            support::Extrinsic{
+                caller: alice.clone(),
+                call: RuntimeCall::BalanceTransfer {to: bob.clone(), amount:30}
+            },
+            support::Extrinsic{
+                caller: alice,
+                call: RuntimeCall::BalanceTransfer {to: charlie.clone(), amount:20}
+            },
 
 
-    assert_eq!(run_time.system.block_number(), 1);
+        ],
 
-    run_time.system.inc_nance(&alice);
 
-    let _ = run_time.balances.transfer(alice.clone(), charlie.clone(), 20).map_err(|e|println!("Error: {:?}", e));
+    };
+
+    let block_2 = types::Block{
+        header: support::Header{block_number: 2},
+        extrinsics: vec![
+            support::Extrinsic{
+                caller: alice.clone(),
+                call: RuntimeCall::BalanceTransfer {to: alice.clone(), amount:30}
+            },
+            support::Extrinsic{
+                caller: alice.clone(),
+                call: RuntimeCall::BalanceTransfer {to: charlie, amount:20}
+            },
+
+
+        ],
+
+
+    };
+
+    run_time.execute_block(block_1).expect("wrong block execution");
+    run_time.execute_block(block_2).expect("wrong block execution");
+
+
 
     println!("{:#?}", run_time);
 
