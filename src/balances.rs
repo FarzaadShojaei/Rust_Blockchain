@@ -4,7 +4,7 @@ use std::ops::AddAssign;
 use num::One;
 use crate::balances;
 use num::traits::{CheckedAdd,CheckedSub,Zero};
-use crate::types::Balance;
+use crate::types::{AccountId, Balance};
 
 pub trait Config: crate::system::Config {
 
@@ -69,6 +69,28 @@ impl<T:Config> Pallet<T>
 
 
 }
+pub enum Call<T: Config> {
+    Transfer {to: AccountId, amount: T::Balance},
+
+    //RemoveMe(core::marker::PhantomData<T>),
+}
+impl<T: Config> crate::support::Dispatch for Pallet<T> {
+    type Caller=T::AccountId;
+    type Call = Call<T>;
+
+    fn dispatch(&mut self, caller: Self::Caller, call: Self::Call) -> crate::support::DispatchResult{
+        match call{
+            Call::Transfer{to,amount}=>{
+                self.transfer(caller,to,amount)?
+
+            }
+        }
+
+        Ok(())
+    }
+
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{balances, system};
