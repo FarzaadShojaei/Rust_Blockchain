@@ -70,7 +70,7 @@ impl<T:Config> Pallet<T>
 
 }
 pub enum Call<T: Config> {
-    Transfer {to: AccountId, amount: T::Balance},
+    Transfer {to: T:: AccountId, amount: T::Balance},
 
     //RemoveMe(core::marker::PhantomData<T>),
 }

@@ -4,9 +4,11 @@ use crate::balances::Pallet;
 use crate::support::{Dispatch, DispatchResult};
 use crate::types::{AccountId, Balance};
 
+
 pub mod balances;
 pub mod system;
 mod support;
+mod proof_of_existence;
 
 mod types{
     use crate::support;
@@ -26,7 +28,8 @@ mod types{
 }
 
 pub enum RuntimeCall{
-BalanceTransfer{to:types::AccountId, amount: types::Balance},
+    Balances(balances::Call<Runtime>),
+
 }
 
 
@@ -87,16 +90,25 @@ impl crate::support::Dispatch for Runtime{
     type Call = RuntimeCall;
 
 
-    fn dispatch(&mut self, caller: Self::Caller, runtime_call: Self::Call) -> support::DispatchResult {
-        match runtime_call{
-            RuntimeCall::BalanceTransfer {to, amount}=>{
-                self.balances.transfer(caller,to,amount)?;
-            }
+    fn dispatch(&mut self, caller: Self::Caller, runtime_call: Self::Call) -> crate::support::DispatchResult
+
+    {
+
+
+        match runtime_call {
+            RuntimeCall::Balances(call) => {
+                self.balances.dispatch(caller, call)?;
+            },
 
         }
         Ok(())
     }
+
 }
+
+
+
+
 fn main() {
     let mut run_time = Runtime::new();
     println!("Hello Rust");
@@ -111,11 +123,11 @@ fn main() {
         extrinsics: vec![
             support::Extrinsic{
                 caller: alice.clone(),
-                call: RuntimeCall::BalanceTransfer {to: bob.clone(), amount:30}
+                call: RuntimeCall::Balances(balances::Call::Transfer {to: bob.clone(), amount:30})
             },
             support::Extrinsic{
                 caller: alice,
-                call: RuntimeCall::BalanceTransfer {to: charlie.clone(), amount:20}
+                call: RuntimeCall::Balances(balances::Call::Transfer{to: charlie.clone(), amount:20})
             },
 
 
@@ -123,17 +135,17 @@ fn main() {
 
 
     };
-
+/*
     let block_2 = types::Block{
         header: support::Header{block_number: 2},
         extrinsics: vec![
             support::Extrinsic{
                 caller: alice.clone(),
-                call: RuntimeCall::BalanceTransfer {to: alice.clone(), amount:30}
+                call: RuntimeCall::Balances(balances::Call::Transfer {to: alice.clone(), amount:30})
             },
             support::Extrinsic{
                 caller: alice.clone(),
-                call: RuntimeCall::BalanceTransfer {to: charlie, amount:20}
+                call: RuntimeCall::Balances(balances::Call::Transfer {to: charlie.clone(), amount:20})
             },
 
 
@@ -142,8 +154,10 @@ fn main() {
 
     };
 
+ */
+
     run_time.execute_block(block_1).expect("wrong block execution");
-    run_time.execute_block(block_2).expect("wrong block execution");
+  //  run_time.execute_block(block_2).expect("wrong block execution");
 
 
 
