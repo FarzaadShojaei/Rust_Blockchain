@@ -20,37 +20,17 @@ pub struct Pallet<T:Config> {
 }
 //Adding Different Implementations of Functions : using impl
 //creating a pallet from outside
-impl<T:Config> Pallet<T>
-{
-    pub fn new() -> Self {
-        Self{
-            balances: BTreeMap::new(),
 
-        }
-    }
-    /// Set the balance of account `who` to some `amount`
-    pub fn set_balance(&mut self,who: &T::AccountId, amount: T::Balance) {
-        self.balances.insert(who.clone(), amount);
-        /* Insert `amount` into the BTreeMap under `who` */
-
-    }
-    /// GET the balance of account `who` to some `amount`
-    /// If the account has no stored balance, we return zero
-    pub fn balance(&self, who: &T::AccountId) -> T::Balance {
-        *self.balances.get(who).unwrap_or(&T::Balance::zero())
-    }
-
-    /// Transfer `amount` from one account to another
-    /// This function verifies that `from` has at least `amount` balance to transfer
-    /// and that no mathematical overflows occur
-   pub fn transfer(
+#[macros::call]
+impl <T:Config> Pallet<T> {
+    pub fn transfer(
         &mut self,
         caller: T::AccountId,
         to: T::AccountId,
         amount: T::Balance,
     ) -> Result<(), &'static str> {
-    let caller_balance: <T as Config>::Balance= self.balance(&caller);
-    let to_balance:<T as Config>::Balance = self.balance(&to);
+        let caller_balance: <T as Config>::Balance= self.balance(&caller);
+        let to_balance:<T as Config>::Balance = self.balance(&to);
 
         let new_caller_balance :<T as Config>::Balance = caller_balance
             .checked_sub(&amount).ok_or("Insufficient balance")?;
@@ -62,32 +42,35 @@ impl<T:Config> Pallet<T>
 
 
 
-    Ok(())
-
-
-    }
-
-
-}
-pub enum Call<T: Config> {
-    Transfer {to: T:: AccountId, amount: T::Balance},
-
-    //RemoveMe(core::marker::PhantomData<T>),
-}
-impl<T: Config> crate::support::Dispatch for Pallet<T> {
-    type Caller=T::AccountId;
-    type Call = Call<T>;
-
-    fn dispatch(&mut self, caller: Self::Caller, call: Self::Call) -> crate::support::DispatchResult{
-        match call{
-            Call::Transfer{to,amount}=>{
-                self.transfer(caller,to,amount)?
-
-            }
-        }
-
         Ok(())
+
+
     }
+
+
+}
+
+
+impl<T:Config> Pallet<T>
+{
+    pub fn new() -> Self {
+        Self {
+            balances: BTreeMap::new(),
+
+        }
+    }
+    /// Set the balance of account `who` to some `amount`
+    pub fn set_balance(&mut self, who: &T::AccountId, amount: T::Balance) {
+        self.balances.insert(who.clone(), amount);
+        /* Insert `amount` into the BTreeMap under `who` */
+    }
+    /// GET the balance of account `who` to some `amount`
+    /// If the account has no stored balance, we return zero
+    pub fn balance(&self, who: &T::AccountId) -> T::Balance {
+        *self.balances.get(who).unwrap_or(&T::Balance::zero())
+    }
+
+
 
 }
 
