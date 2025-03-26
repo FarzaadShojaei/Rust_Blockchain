@@ -5,14 +5,14 @@ use num::traits::{CheckedAdd, CheckedSub, One, Zero};
 pub trait Config{
     type AccountId: Ord + Clone;
     type BlockNumber: Zero + One + AddAssign + Copy;
-    type Nance: Zero + One + Copy;
+    type Nonce: Zero + One + Copy;
     //Hello System
 }
 
 #[derive(Debug)]
 pub struct Pallet<T:Config> {
     block_number:T::BlockNumber,
-    nance:BTreeMap<T::AccountId,T::Nance>
+    nonce:BTreeMap<T::AccountId,T::Nonce>
 
 }
 
@@ -26,7 +26,7 @@ impl<T:Config>Pallet<T>
     pub fn new() -> Self {
         Self{
             block_number:T::BlockNumber::zero(),
-            nance: BTreeMap::new(),
+            nonce: BTreeMap::new(),
         }
     }
 
@@ -42,19 +42,19 @@ impl<T:Config>Pallet<T>
 
     }
     //Increments the nonce of an account, for keep tracking of the amount of transactions
-    pub fn inc_nance(&mut self,who: &T::AccountId){
-        let nance = *self.nance.get(who).unwrap_or(&T::Nance::zero());
+    pub fn inc_nonce(&mut self,who: &T::AccountId){
+        let nance = *self.nonce.get(who).unwrap_or(&T::Nonce::zero());
 
 
-        self.nance.insert(who.clone(), nance+T::Nance::one());
+        self.nonce.insert(who.clone(), nance+T::Nonce::one());
 
 
 
     }
 
-    pub fn get_nance(&self, who: &T::AccountId) -> T::Nance {
+    pub fn get_nonce(&self, who: &T::AccountId) -> T::Nonce {
         //let default = &0;
-        *self.nance.get(who).unwrap_or(&T::Nance::zero())
+        *self.nonce.get(who).unwrap_or(&T::Nonce::zero())
     }
 
 }
@@ -66,7 +66,7 @@ mod test{
     impl super::Config for TestConfig {
         type AccountId= String;
         type BlockNumber = u32;
-        type Nance = u32;
+        type Nonce = u32;
         
     }
     use std::alloc::System;
@@ -90,8 +90,8 @@ mod test{
     fn inc_nance(){
         let alice:String = String::from("alice");
         let mut system:super::Pallet<TestConfig> = super::Pallet::new();
-        system.inc_nance(&alice.clone());
-        assert_eq!(system.get_nance(&alice), 1);
+        system.inc_nonce(&alice.clone());
+        assert_eq!(system.get_nonce(&alice), 1);
     }
 
 

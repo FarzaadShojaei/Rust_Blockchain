@@ -16,6 +16,31 @@ pub struct Pallet<T:Config>{
 claims: BTreeMap<T::Content, T::AccountId>,
 }
 
+#[macros::call]
+impl <T:Config> Pallet<T>{
+    pub fn create_claim(&mut self, caller: T::AccountId, claim: T::Content)-> DispatchResult{
+        match self.get_claim(&claim) {
+            Some(_) => Err("Claim already exists"),
+            None=>{
+                self.claims.insert(claim,caller);
+                Ok(())
+            }
+        }
+
+    }
+
+    pub fn revoke_claim(&mut self, caller: T::AccountId, claim: T::Content) -> DispatchResult{
+        let claim_owner= self.get_claim(&claim).ok_or("Claim does not exist");
+        if claim_owner != Ok(&caller) {
+            return Err("Caller is not the owner of the claim")
+        }
+        self.claims.remove(&claim);
+
+        Ok(())
+    }
+
+}
+
 impl<T:Config> Pallet<T>{
     pub fn new()-> Self{
        Self{
@@ -25,6 +50,7 @@ impl<T:Config> Pallet<T>{
     pub fn get_claim(&self, claim: &T::Content) -> Option<&T::AccountId>{
         self.claims.get(claim)
     }
+    /*
     pub fn create_claim(&mut self, caller: T::AccountId, claim: T::Content)-> DispatchResult{
         match self.get_claim(&claim) {
             Some(_) => Err("Claim already exists"),
@@ -46,36 +72,12 @@ impl<T:Config> Pallet<T>{
         Ok(())
     }
 
-}
-pub enum Call<T:Config>{
-    CreateClaim {claim: T::Content},
-    RevokeClaim {claim: T::Content},
-
-
-    RemoveMe(core::marker::PhantomData<T>),
-}
-
-impl <T:Config> crate::support::Dispatch for Pallet<T>{
-    type Caller = T::AccountId;
-    type Call = Call<T>;
-
-     fn dispatch(&mut self, caller: Self::Caller, call: Self::Call) -> DispatchResult {
-        match call{
-            Call::CreateClaim {claim} => self.create_claim(caller,claim),
-            Call::RevokeClaim {claim} => self.revoke_claim(caller,claim),
-            Call::RemoveMe(_) => {
-                // Decide what you want to do here. For now, just return an error:
-                Err("RemoveMe is not a valid dispatchable call")
-            }
-
-
-
-
-        }
-    }
-
+     */
 
 }
+
+
+
 
 
 
@@ -92,7 +94,7 @@ mod test{
         type AccountId= &'static str;
         type BlockNumber= u32;
 
-        type Nance= u32;
+        type Nonce= u32;
     }
 
     #[test]

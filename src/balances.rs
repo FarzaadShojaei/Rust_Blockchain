@@ -83,7 +83,7 @@ mod tests {
     impl system::Config for TestConfig {
         type AccountId = String;
         type BlockNumber =u32;
-        type Nance = u32;
+        type Nonce = u32;
     }
 
 
