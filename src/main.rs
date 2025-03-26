@@ -10,37 +10,19 @@ pub mod system;
 mod support;
 mod proof_of_existence;
 
-mod types{
-    use crate::support;
-
-    pub type AccountId=String;
-  pub  type Balance=u128;
- pub    type BlockNumber=u32;
-   pub  type Nance =u32;
-    pub type Extrinsic = support::Extrinsic<AccountId,crate::RuntimeCall>;
-    pub type Header= support::Header<BlockNumber>;
-    pub type Block= support::Block<Header,Extrinsic>;
-
-    pub type Content = &'static str;
-
-    /* TODO: Define a concrete `Extrinsitc` type using `AccountId` and `Runtime Call`.  */
-    /* TODO: Define a concrete `Header` type using `BlockNumber` */
-    /* TODO: Define a concrete `Block` type using `Header` and `Extrinsic` */
+#[derive(Debug)]
+#[macros::runtime]
+pub struct Runtime{
+    system: system::Pallet<Runtime>,
+    balances: Pallet<Runtime>,
+    proof_of_existence: proof_of_existence::Pallet<Runtime>,
 
 }
-
-pub enum RuntimeCall{
-    Balances(balances::Call<Runtime>),
-    ProofOfExistence(proof_of_existence::Call<Runtime>),
-
-}
-
-
 
 impl system::Config for Runtime{
-  type AccountId = types::AccountId;
-   type BlockNumber = types::BlockNumber;
-   type Nance = types::Nance;
+    type AccountId = types::AccountId;
+    type BlockNumber = types::BlockNumber;
+    type Nonce = types::Nonce;
 }
 
 
@@ -57,70 +39,33 @@ impl proof_of_existence::Config for Runtime{
     type Content = types::Content;
 }
 
-#[derive(Debug)]
-pub struct Runtime{
-    system: system::Pallet<Runtime>,
-    balances: Pallet<Runtime>,
-    proof_of_existence: proof_of_existence::Pallet<Runtime>,
+mod types{
+    use crate::support;
+
+    pub type AccountId=String;
+  pub  type Balance=u128;
+ pub    type BlockNumber=u32;
+   pub  type Nonce =u32;
+
+    pub type Header= support::Header<BlockNumber>;
+    pub type Extrinsic = support::Extrinsic<AccountId,crate::RuntimeCall>;
+    pub type Block= support::Block<Header,Extrinsic>;
+
+    pub type Content = &'static str;
+
+    /* TODO: Define a concrete `Extrinsitc` type using `AccountId` and `Runtime Call`.  */
+    /* TODO: Define a concrete `Header` type using `BlockNumber` */
+    /* TODO: Define a concrete `Block` type using `Header` and `Extrinsic` */
 
 }
 
-impl Runtime{
-
-    fn new()-> Self{
-        Self {
-            system: system::Pallet::new(),
-            balances: balances::Pallet::new(),
-            proof_of_existence: proof_of_existence::Pallet::new()
-        }
-    }
-fn execute_block(&mut self,block:types::Block) -> support::DispatchResult{
-    self.system.inc_block_number();
-
-    if(self.system.block_number() !=block.header.block_number){
-        return Err("Block number mismatch");
-    }
-
-    for (i,support::Extrinsic{  caller, call}) in block.extrinsics.into_iter().enumerate(){
-    self.system.inc_nance(&caller);
-     let _ =   self.dispatch(caller,call).map_err(|e|
-         eprintln!("Extrinsic Error
- 	Block Number: {}
-	Extrinsic Number: {}
-	Error: {}"
-                   , block.header.block_number, i, e));
-
-    }
-
-    Ok(())
-}
 
 
-}
-impl crate::support::Dispatch for Runtime{
-    type Caller = <Runtime as system::Config>::AccountId;
-    type Call = RuntimeCall;
 
 
-    fn dispatch(&mut self, caller: Self::Caller, runtime_call: Self::Call) -> crate::support::DispatchResult
-
-    {
 
 
-        match runtime_call {
-            RuntimeCall::Balances(call) => {
-                self.balances.dispatch(caller, call)?;
-            },
 
-            RuntimeCall::ProofOfExistence(call) => {
-                self.proof_of_existence.dispatch(caller,call)?;
-            }
-
-        }
-        Ok(())
-    }
-
-}
 
 
 
@@ -139,11 +84,11 @@ fn main() {
         extrinsics: vec![
             support::Extrinsic{
                 caller: alice.clone(),
-                call: RuntimeCall::Balances(balances::Call::transfer {to: bob.clone(), amount:30})
+                call: RuntimeCall::balances(balances::Call::transfer {to: bob.clone(), amount:30})
             },
             support::Extrinsic{
                 caller: alice,
-                call: RuntimeCall::Balances(balances::Call::transfer{to: charlie.clone(), amount:20})
+                call: RuntimeCall::balances(balances::Call::transfer{to: charlie.clone(), amount:20})
             },
 
 
@@ -157,11 +102,11 @@ fn main() {
         extrinsics: vec![
             support::Extrinsic{
                 caller: bob.clone(),
-                call: RuntimeCall::ProofOfExistence(proof_of_existence::Call::CreateClaim{claim: "my_document"})
+                call: RuntimeCall::proof_of_existence(proof_of_existence::Call::create_claim{claim: "my_document"})
             },
             support::Extrinsic{
                caller: bob.clone(),
-                call: RuntimeCall::ProofOfExistence(proof_of_existence::Call::CreateClaim{claim: "bob's document"})
+                call: RuntimeCall::proof_of_existence(proof_of_existence::Call::create_claim{claim: "bob's document"})
             },
 
 
